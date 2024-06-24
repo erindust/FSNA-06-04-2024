@@ -53,11 +53,20 @@ def create_app(test_config=None):
     if len(current_questions) == 0:
       abort(404)
 
+    current_category_id = request.args.get("catagory_id", 1, type=int)
+    current_category = Category.query.filter(Category.id==current_category_id).one_or_none()
+    current_category = current_category.format()
+    if current_category is None:
+      abort(404)
+    categories = Category.query.order_by(Category.id).all()
+    formatted_categories = [category.format() for category in categories]
+
     return jsonify(
       {
-        "success":True,
         "questions":current_questions,
         "total_questions":len(selection),
+        "categories":formatted_categories,
+        "current_category":current_category
       }
     )
 
