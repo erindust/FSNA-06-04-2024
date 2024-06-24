@@ -55,11 +55,15 @@ def create_app(test_config=None):
 
     current_category_id = request.args.get("catagory_id", 1, type=int)
     current_category = Category.query.filter(Category.id==current_category_id).one_or_none()
-    current_category = current_category.format()
     if current_category is None:
       abort(404)
+
+    current_category = current_category.type
     categories = Category.query.order_by(Category.id).all()
-    formatted_categories = [category.format() for category in categories]
+    # formatted_categories = [category.format() for category in categories]
+    formatted_categories = {}
+    for category in categories:
+      formatted_categories[category.id] = category.type
 
     return jsonify(
       {
