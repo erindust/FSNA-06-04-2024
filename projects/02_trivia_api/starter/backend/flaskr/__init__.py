@@ -54,8 +54,6 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
-
-
   @app.route("/questions")
   def retrieve_questions():
     selection = Question.query.order_by(Question.id).all()
@@ -102,6 +100,29 @@ def create_app(test_config=None):
       }
     )
 
+  '''
+  @TODO: 
+  Create a GET endpoint to get questions based on category. 
+
+  TEST: In the "List" tab / main screen, clicking on one of the 
+  categories in the left column will cause only questions of that 
+  category to be shown. 
+  '''
+  @app.route("/categories/<int:category_id>/questions")
+  def question_by_category(category_id):
+    selection =Question.query.filter_by(category=str(category_id)).all()
+    questions = []
+    for question in selection:
+      questions.append(question.format())
+
+    current_category = Category.query.filter(Category.id==category_id).one_or_none()
+    
+    return jsonify({
+      "questions":questions,
+      "totalQuestions":len(questions),
+      "currentCategory":current_category.type
+    })
+
 
 
 
@@ -135,14 +156,6 @@ def create_app(test_config=None):
   Try using the word "title" to start. 
   '''
 
-  '''
-  @TODO: 
-  Create a GET endpoint to get questions based on category. 
-
-  TEST: In the "List" tab / main screen, clicking on one of the 
-  categories in the left column will cause only questions of that 
-  category to be shown. 
-  '''
 
 
   '''
