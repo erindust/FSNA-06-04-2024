@@ -119,8 +119,8 @@ def create_app(test_config=None):
     
     return jsonify({
       "questions":questions,
-      "totalQuestions":len(questions),
-      "currentCategory":current_category.type
+      "total_questions":len(questions),
+      "current_category":current_category.type
     })
 
   '''
@@ -152,6 +152,18 @@ def create_app(test_config=None):
       abort(422)
 
 
+  # @app.route('/questions',methods=['POST'])
+  # def create_or_search():
+  #   try:
+  #     body = request.get_json()
+  #     new_search = body.get('searchTerm',None)
+  #     if new_search:
+  #       search_questions(new_search)
+  #     else:
+  #       create_question(body)
+  #   except:
+  #     print("Error in create_or_search()")
+  #     abort(422)
 
   '''
   @TODO: 
@@ -164,7 +176,7 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
   @app.route('/questions',methods=['POST'])
-  def create_question():
+  def create_question(body):
     body = request.get_json()
     print("New Question:",body)
     new_question = body.get("question",None)
@@ -186,6 +198,7 @@ def create_app(test_config=None):
       })
 
     except:
+      print("Error in create_question()")
       abort(422)
   '''
   @TODO: 
@@ -197,7 +210,33 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-
+  @app.route('/questions/search',methods=['POST'])
+  def search_questions():
+    try:
+      body = request.get_json()
+      search_term = body.get('searchTerm',None)
+      print("Search:",search_term)
+      selection = Question.query.filter(Question.question.ilike('%{}%'.format(search_term)))
+      print("Questions found:",selection)
+      # questions = []
+      # for question in selection:
+      #   questions.append(question.format())
+      questions = [question.format() for question in selection]
+      formatted_questions = paginate_questions(request,selection)
+      print(questions)
+      # formatted_questions = [question.format() for question in questions]
+      # print("Formatted Questions:",formatted_questions)
+      return jsonify({
+        'success':True,
+        # 'questions':formatted_questions,
+        # 'total_questions':len(formatted_questions),
+        'questions':formatted_questions,
+        'total_questions':len(questions),
+        'current_category':None
+      })
+    except:
+      print("Error in search_questions")
+      abort(422)
 
 
   '''
