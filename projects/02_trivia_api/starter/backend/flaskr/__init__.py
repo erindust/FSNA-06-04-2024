@@ -183,6 +183,14 @@ def create_app(test_config=None):
     new_answer = body.get("answer",None)
     new_difficulty = body.get("difficulty",None)
     new_category = body.get("category",None)
+    if (new_question is None) or (len(new_question)==0):
+      abort(404)
+    if (new_answer is None) or (len(new_answer)==0):
+      abort(404)
+    if (new_difficulty is None):
+      abort(404)
+    if (new_category is None):
+      abort(404)
     selection = Question.query.order_by(Question.id).all()
     print("Total questions previous to operation: ",len(selection))
 
