@@ -176,7 +176,7 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
   @app.route('/questions',methods=['POST'])
-  def create_question(body):
+  def create_question():
     body = request.get_json()
     print("New Question:",body)
     new_question = body.get("question",None)
@@ -250,6 +250,21 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route('/quizzes',methods=['POST'])
+  def quiz():
+    try:
+      body=request.get_json()
+      print(body)
+      previous_questions = body.get('previous_questions')
+      quiz_category = body.get('quiz_category')
+      print("Quiz Category:",quiz_category)
+      print("Quiz Category Type:",type(quiz_category))  
+      print("Quiz Category ID:",quiz_category["id"])
+      selection = Question.query.filter(Question.category==quiz_category["id"])
+      print(selection)
+    except:
+      abort(422)
+
 
   '''
   @TODO: 
