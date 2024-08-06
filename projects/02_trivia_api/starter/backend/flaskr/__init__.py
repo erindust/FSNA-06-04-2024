@@ -111,9 +111,11 @@ def create_app(test_config=None):
   @app.route("/categories/<int:category_id>/questions")
   def question_by_category(category_id):
     selection =Question.query.filter_by(category=str(category_id)).all()
+    print("Selection:",selection)
     questions = []
     for question in selection:
       questions.append(question.format())
+    print("Questions:",questions)
 
     current_category = Category.query.filter(Category.id==category_id).one_or_none()
     
@@ -231,7 +233,7 @@ def create_app(test_config=None):
       #   questions.append(question.format())
       questions = [question.format() for question in selection]
       formatted_questions = paginate_questions(request,selection)
-      print(questions)
+      print("questions found:",questions)
       # formatted_questions = [question.format() for question in questions]
       # print("Formatted Questions:",formatted_questions)
       return jsonify({
@@ -266,12 +268,46 @@ def create_app(test_config=None):
       previous_questions = body.get('previous_questions')
       quiz_category = body.get('quiz_category')
       print("Quiz Category:",quiz_category)
-      print("Quiz Category Type:",type(quiz_category))  
+      print("Quiz Category Datatype:",type(quiz_category))  
       print("Quiz Category ID:",quiz_category["id"])
-      selection = Question.query.filter(Question.category==quiz_category["id"])
-      print(selection)
+      print("Quiz Category ID DATAType:",type(quiz_category['id']))
+      if quiz_category["id"] == 0:
+        selection = Question.query.order_by(Question.id).all()
+      else:
+        selection = Question.query.filter(Question.category==quiz_category["id"]).all()
+      print("\nSELECTION:",selection)
+      questions = [question.format() for question in selection]
+      print("\nQUESTIONS:",questions)
+      # check to see if question is in the previous question list
+      for i in questions:
+        print("\nITERATING THROUGH LIST...",i['id'])
+        if i['id'] in previous_questions:
+          # remove question from list
+          print("REMOVING:",i)
+          questions.remove(i)
+          
+      print("\nPASSED REMOVING DICTIONARY FROM LIST")
+      question = random.choice(questions)
+      print("\nRANDOMLY CHOSEN QUESTION:",question)
+
+      
+
+      
+
+      return jsonify({
+        'question': {
+          'id':question['id'],
+          'question':question['question'],
+          'answer':question['answer'],
+          'difficulty':question['difficulty'],
+          'category':question['category']
+        }
+      })
+
+
     except:
       abort(422)
+    
 
 
   '''
@@ -279,6 +315,24 @@ def create_app(test_config=None):
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+  @app.errorhandler(404)
+  def not_found_error(error):
+    return jsonify({"error":"EGN Resource not found"}),404
+  
+  @app.errorhandler(500)
+  def internal_error(error):
+    return jsonify({"error":"EGN Internal server error!"}),500
+  
+  @app.errorhandler(400)
+  def bad_request(error):
+    return jsonify({"error":"EGN Bad Request"}),400
+  
+  @app.errorhandler(422)
+  def unprocessable_entity(error):
+    return jsonify({'error': 'EGN Unprocessable Entity', 'message': str(error)}), 422
+
+  
+
   
   return app
 
