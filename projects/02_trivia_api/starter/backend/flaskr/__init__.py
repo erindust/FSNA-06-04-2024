@@ -56,6 +56,7 @@ def create_app(test_config=None):
   '''
   @app.route("/questions")
   def retrieve_questions():
+    print("@app.route(\'/questions\') request:",request)
     selection = Question.query.order_by(Question.id).all()
     current_questions = paginate_questions(request,selection)
     if len(current_questions) == 0:
@@ -185,14 +186,15 @@ def create_app(test_config=None):
     new_answer = body.get("answer",None)
     new_difficulty = body.get("difficulty",None)
     new_category = body.get("category",None)
+
     if (new_question is None) or (len(new_question)==0):
-      abort(404)
+      abort(422, description = "Question is required.")
     if (new_answer is None) or (len(new_answer)==0):
-      abort(404)
+      abort(422, description = "Answer is required.")
     if (new_difficulty is None):
-      abort(404)
+      abort(422, description = "Difficulty is required.")
     if (new_category is None):
-      abort(404)
+      abort(422, description = "Category is required.")
     selection = Question.query.order_by(Question.id).all()
     print("Total questions previous to operation: ",len(selection))
 
@@ -204,12 +206,13 @@ def create_app(test_config=None):
 
       return jsonify({
         'success':True,
+        'created':question.id,
         'total_questions':len(selection)
-      })
+      }),201 #201 = created status code
 
-    except:
-      print("Error in create_question()")
-      abort(422)
+    except Exception as e:
+      print("Error in create_question()",e)
+      abort(500) #Internal Server Error
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
