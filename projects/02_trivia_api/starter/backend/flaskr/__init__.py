@@ -213,6 +213,8 @@ def create_app(test_config=None):
     except Exception as e:
       print("Error in create_question()",e)
       abort(500) #Internal Server Error
+
+  
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -293,10 +295,6 @@ def create_app(test_config=None):
       question = random.choice(questions)
       print("\nRANDOMLY CHOSEN QUESTION:",question)
 
-      
-
-      
-
       return jsonify({
         'question': {
           'id':question['id'],
@@ -306,7 +304,6 @@ def create_app(test_config=None):
           'category':question['category']
         }
       })
-
 
     except:
       abort(422)
