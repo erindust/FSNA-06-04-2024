@@ -269,31 +269,32 @@ def create_app(test_config=None):
   def quiz():
     try:
       body=request.get_json()
+      print("######################################")
       print(body)
-      previous_questions = body.get('previous_questions')
-      quiz_category = body.get('quiz_category')
-      print("Quiz Category:",quiz_category)
-      print("Quiz Category Datatype:",type(quiz_category))  
-      print("Quiz Category ID:",quiz_category["id"])
-      print("Quiz Category ID DATAType:",type(quiz_category['id']))
-      if quiz_category["id"] == 0:
-        selection = Question.query.order_by(Question.id).all()
-      else:
+      previous_questions = body.get('previous_questions',[])
+      print("PREVIOUS QUESTIONS:",previous_questions)
+      quiz_category = body.get('quiz_category',None)
+      print("QUIZ_CATEGORY",quiz_category)
+
+      if quiz_category['id']!=0:
         selection = Question.query.filter(Question.category==quiz_category["id"]).all()
-      print("\nSELECTION:",selection)
+      else:
+        selection = Question.query.all()
+      
+      print("SELECTION",selection)
+
       questions = [question.format() for question in selection]
-      print("\nQUESTIONS:",questions)
-      # check to see if question is in the previous question list
-      for i in questions:
-        print("\nITERATING THROUGH LIST...",i['id'])
-        if i['id'] in previous_questions:
-          # remove question from list
-          print("REMOVING:",i)
-          questions.remove(i)
+      print("QUESTIONS",questions)
+
+      available_questions = [q for q in questions if q['id'] not in previous_questions]
+      print("AVAILABLE QUESTIONS:",available_questions)
+      if not available_questions:
+        return jsonify({
+          'success':True,
+          'message':"No more questions available in this category."
+        })
           
-      print("\nPASSED REMOVING DICTIONARY FROM LIST")
-      question = random.choice(questions)
-      print("\nRANDOMLY CHOSEN QUESTION:",question)
+      question = random.choice(available_questions)
 
       return jsonify({
         'question': {
