@@ -48,6 +48,7 @@ class TriviaTestCase(unittest.TestCase):
     def test_retrieve_questions_success(self):
         res = self.client.get('/questions')
         print("res:",res)
+        print("Response Status Code:", res.status_code)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -66,6 +67,58 @@ class TriviaTestCase(unittest.TestCase):
         # for this test to pass the database questions table needs to be empty
         response = self.client.get('/questions')
         self.assertEqual(response.status_code, 404)
+
+    def test_add_question_success(self):
+        new_question = {
+            "question":"What is the capitol of France?",
+            "answer":"Paris",
+            "category":1,
+            "difficulty":1
+        }
+        response = self.client.post("/questions",json=new_question)
+        self.assertEqual(response.status_code, 201)
+        print("test_add_questions_success-response.json:")
+        print(response.json)
+        # self.assertIn('question',response.json)
+
+    # def add_sample_question(self):
+    #     new_question = {
+    #         "questions":"What is the capital of Italy?",
+    #         "answer":"Rome",
+    #         "category":1,
+    #         "difficulty":1
+    #     }
+    #     response = self.client.post("/questions",json=new_question)
+    #     data = response.get_json()
+    #     new_question_id = data["id"]
+    #     return new_question_id
+
+    def test_delete_question_success(self):
+        # question_id = self.add_sample_question()
+        new_question = {
+            "question":"What is the capital of Italy?",
+            "answer":"Rome",
+            "category":1,
+            "difficulty":1
+        }
+        print("test_delete_question_success new question:")
+        print(new_question)
+        response = self.client.post("/questions",json=new_question)
+        print("Test Question Post Status: ")
+        print(response.status_code)
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        print("data received back after adding question: ")
+        print(data)
+        new_question_id = data['created']
+        response = self.client.delete(f"/questions/{new_question_id}")
+        self.assertEqual(response.status_code,200)
+        print("test_delete_question_success-response.json:")
+        print(response.json)
+        # self.assertEqual(response.json,{"success":True})
+        self.assertEqual(response.json['success'], True)
+
+    
 
     
 
