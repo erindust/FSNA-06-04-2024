@@ -36,12 +36,13 @@ class TriviaTestCase(unittest.TestCase):
     TODO
     Write at least one test for each test for successful operation and for expected errors.
     """
-    # def test_422_unprocessable_entity(self):
-    #     #Simulate a 422 error
-    #     response = self.app.post('/questions',json={}) #sending an empty json
-    #     print("unittest response:",response)
-    #     self.assertEqual(response.status_code,422)
-    #     self.assertIn('Unprocessable Entity',response.get_json()['error'])
+    def test_422_unprocessable_entity(self):
+        #Simulate a 422 error
+        response = self.client.post('/questions',json={}) #sending an empty json
+        data = response.get_json()
+        print("test_422_unprocessable_entity-response:",data)
+        self.assertEqual(response.status_code,422)
+        self.assertEqual(data['error'],'Unprocessable Entity')
 
     # Test Successful Retrieval of Questions  
     # to ensure that when the endpoint is hit successfully, it returns a 200 status code and the expected structure of the response  
@@ -60,7 +61,7 @@ class TriviaTestCase(unittest.TestCase):
     def test_404_error_handler(self):
         response = self.client.get('/non-existent-endpoint')
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json, {"error": "EGN Resource not found"})
+        self.assertEqual(response.json, {"error": "Resource not found"})
 
     def test_404_no_questions(self):
         # Simulate a request to /questions when there are no questions

@@ -212,7 +212,7 @@ def create_app(test_config=None):
 
     except Exception as e:
       print("Error in create_question()",e)
-      abort(500) #Internal Server Error
+      abort(500,description=str(e)) #Internal Server Error
 
   
   '''
@@ -318,19 +318,19 @@ def create_app(test_config=None):
   '''
   @app.errorhandler(404)
   def not_found_error(error):
-    return jsonify({"error":"EGN Resource not found"}),404
+    return jsonify({"error":"Resource not found"}),404
   
   @app.errorhandler(500)
   def internal_error(error):
-    return jsonify({"error":"EGN Internal server error!"}),500
+    return jsonify({"error":"Internal server error!"}),500
   
   @app.errorhandler(400)
   def bad_request(error):
-    return jsonify({"error":"EGN Bad Request"}),400
+    return jsonify({"error":"Bad Request"}),400
   
   @app.errorhandler(422)
   def unprocessable_entity(error):
-    return jsonify({'error': 'EGN Unprocessable Entity', 'message': str(error)}), 422
+    return jsonify({'error': 'Unprocessable Entity', 'message': str(error)}), 422
 
   
 
