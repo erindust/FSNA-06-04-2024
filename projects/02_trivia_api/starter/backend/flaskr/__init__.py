@@ -119,13 +119,24 @@ def create_app(test_config=None):
     print("Questions:",questions)
 
     current_category = Category.query.filter(Category.id==category_id).one_or_none()
+
+    if current_category is None:
+      return jsonify({
+        "success":False,
+        "message":"Category not found."
+      }),404
     
     return jsonify({
       "questions":questions,
       "total_questions":len(questions),
-      "current_category":current_category.type
+      "current_category":current_category.type if current_category else None
     })
 
+
+
+
+
+  
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 

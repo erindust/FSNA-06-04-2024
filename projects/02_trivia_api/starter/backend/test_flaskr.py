@@ -82,17 +82,6 @@ class TriviaTestCase(unittest.TestCase):
         print(response.json)
         # self.assertIn('question',response.json)
 
-    # def add_sample_question(self):
-    #     new_question = {
-    #         "questions":"What is the capital of Italy?",
-    #         "answer":"Rome",
-    #         "category":1,
-    #         "difficulty":1
-    #     }
-    #     response = self.client.post("/questions",json=new_question)
-    #     data = response.get_json()
-    #     new_question_id = data["id"]
-    #     return new_question_id
 
     def test_delete_question_success(self):
         # question_id = self.add_sample_question()
@@ -102,7 +91,7 @@ class TriviaTestCase(unittest.TestCase):
             "category":1,
             "difficulty":1
         }
-        print("test_delete_question_success new question:")
+        print("test_delete_question_success n   ew question:")
         print(new_question)
         response = self.client.post("/questions",json=new_question)
         print("Test Question Post Status: ")
@@ -119,8 +108,26 @@ class TriviaTestCase(unittest.TestCase):
         # self.assertEqual(response.json,{"success":True})
         self.assertEqual(response.json['success'], True)
 
-    
+    def test_delete_question_failure(self):
+        # question_id = self.add_sample_question()
+        
+        response = self.client.delete(f"/questions/1000")
+        self.assertEqual(response.status_code,422)
+        print("test_delete_question_success-response.json:")
+        print(response.json)
 
+    def test_get_questions_by_category_success(self):
+        res = self.client.get('/categories/1/questions')
+        data = res.get_json()
+        self.assertEqual(res.status_code,200)
+        self.assertTrue(data["total_questions"] >= 0)
+        self.assertIsInstance(data["questions"],list)
+
+    def test_get_questions_by_category_failure(self):
+        res = self.client.get('/categories/999/questions')
+        data = res.get_json()
+        self.assertEqual(res.status_code,404)
+        
     
 
 
