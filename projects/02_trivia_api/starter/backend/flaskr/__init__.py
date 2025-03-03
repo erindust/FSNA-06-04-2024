@@ -132,10 +132,6 @@ def create_app(test_config=None):
       "current_category":current_category.type if current_category else None
     })
 
-
-
-
-
   
   '''
   @TODO: 
@@ -164,20 +160,6 @@ def create_app(test_config=None):
     except Exception as e:
       print(f"Error occurred: {e}")
       abort(422)
-
-
-  # @app.route('/questions',methods=['POST'])
-  # def create_or_search():
-  #   try:
-  #     body = request.get_json()
-  #     new_search = body.get('searchTerm',None)
-  #     if new_search:
-  #       search_questions(new_search)
-  #     else:
-  #       create_question(body)
-  #   except:
-  #     print("Error in create_or_search()")
-  #     abort(422)
 
   '''
   @TODO: 
@@ -244,18 +226,11 @@ def create_app(test_config=None):
       print("Search:",search_term)
       selection = Question.query.filter(Question.question.ilike('%{}%'.format(search_term)))
       print("Questions found:",selection)
-      # questions = []
-      # for question in selection:
-      #   questions.append(question.format())
       questions = [question.format() for question in selection]
       formatted_questions = paginate_questions(request,selection)
       print("questions found:",questions)
-      # formatted_questions = [question.format() for question in questions]
-      # print("Formatted Questions:",formatted_questions)
       return jsonify({
         'success':True,
-        # 'questions':formatted_questions,
-        # 'total_questions':len(formatted_questions),
         'questions':formatted_questions,
         'total_questions':len(questions),
         'current_category':None
@@ -279,7 +254,7 @@ def create_app(test_config=None):
   @app.route('/quizzes',methods=['POST'])
   def quiz():
     try:
-      body=request.get_json()
+      body=request.get_json() 
       print("######################################")
       print(body)
       previous_questions = body.get('previous_questions',[])
