@@ -109,3 +109,82 @@ createdb trivia_test
 psql trivia_test < trivia.psql
 python test_flaskr.py
 ```
+################################################################################################
+# Trivia API Test Suite
+
+## Overview
+This project contains a test suite for the Trivia API, which allows users to retrieve, add, and delete trivia questions. The tests are implemented using the `unittest` framework and cover various aspects of the API's functionality.
+
+## Setup
+
+### Dependencies
+- Flask
+- Flask-SQLAlchemy
+- PostgreSQL
+
+### Database Configuration
+Make sure to set up an empty PostgreSQL database for testing. The database connection string is configured in the `setUp` method of the test class.
+
+```python
+self.database_name = "trivia_test"
+self.username = "postgres"
+self.password = "postgres"
+self.database_path = "postgresql://{}:{}@{}/{}".format(self.username, self.username, 'localhost:5432', self.database_name)
+
+### Test Cases
+Test Case 1: Unprocessable Entity (422)
+•	Description: Tests that an empty JSON request to the /questions endpoint returns a 422 status code.
+•	Expected Outcome:
+•	Status Code: 422
+•	Error Message: "Unprocessable Entity"
+
+Test Case 2: Retrieve Questions Success
+•	Description: Tests successful retrieval of questions from the /questions endpoint.
+•	Expected Outcome:
+•	Status Code: 200
+•	Response contains keys: questions, total_questions, categories, current_category
+
+Test Case 3: 404 Error Handler
+•	Description: Tests that a request to a non-existent endpoint returns a 404 status code.
+•	Expected Outcome:
+•	Status Code: 404
+•	Error Message: "Resource not found"
+
+Test Case 4: No Questions (404)
+•	Description: Tests the response when there are no questions in the database.
+•	Expected Outcome:
+•	Status Code: 404
+
+Test Case 5: Add Question Success
+•	Description: Tests successful addition of a new question to the /questions endpoint.
+•	Expected Outcome:
+•	Status Code: 201
+•	Response contains the created question details.
+
+Test Case 6: Delete Question Success
+•	Description: Tests successful deletion of a question by ID.
+•	Expected Outcome:
+•	Status Code: 200
+•	Response indicates success.
+
+Test Case 7: Delete Question Failure
+•	Description: Tests deletion of a question that does not exist.
+•	Expected Outcome:
+•	Status Code: 422
+
+Test Case 8: Get Questions by Category Success
+•	Description: Tests retrieval of questions by category.
+•	Expected Outcome:
+•	Status Code: 200
+•	Response contains a list of questions.
+
+Test Case 9: Get Questions by Category Failure
+•	Description: Tests retrieval of questions for a non-existent category.
+•	Expected Outcome:
+•	Status Code: 404
+
+Running the Tests
+To run the tests, execute the following command:
+
+python -m unittest <test_file_name>.py
+Replace <test_file_name> with the name of your test file.
