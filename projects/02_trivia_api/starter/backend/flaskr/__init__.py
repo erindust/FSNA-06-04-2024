@@ -367,6 +367,31 @@ def create_app(test_config=None):
   '''
   @app.route('/questions/search',methods=['POST'])
   def search_questions():
+    """
+    Search for questions based on a search term.
+
+    This endpoint handles POST requests to the "/questions/search" route. 
+    It retrieves a search term from the request body and queries the
+    database for questions that contain the search term in their text.
+    The results are then paginated and returned in a JSON response.
+
+    Steps:
+    1. Retrieve the search term from the request body.
+    2. Query the database for questions that match the search term using
+        a case-sensitive search.
+    3. Format the found questions and paginate the results.
+    4. Return a JSON response containing:
+        - "success": A boolean indicating the search was successful.
+        - "questions": A list of formatted questions that match the search term.
+        - "total_questions": The total number of questions found.
+        - "current_category": Currently set to None.
+
+    Returns:
+      JSON response containing the search results.
+
+    Raises:
+      422: If there is an error processing the search request.
+    """
     try:
       body = request.get_json()
       search_term = body.get('searchTerm',None)
@@ -400,6 +425,40 @@ def create_app(test_config=None):
   '''
   @app.route('/quizzes',methods=['POST'])
   def quiz():
+    """
+    Retrieve a random quiz question based on the specified category &
+    previously answered questions.
+
+    This endpoint handles POST requests to the "/quizzes" route.  It expects
+    a JSON payload containing the previous questions and the quiz category.
+    The function retrieves a random question that has not been previously
+    answered by the user. If no questions are available in the specified
+    category, it returns a message indicating that there are no more questions.
+
+    Request Body:
+    - previous_questions (list): A list of question IDs that have already 
+      been answered.
+    - quiz_category (dict): A dictionary containing the category ID. If
+      the ID is 0, questions from all categories will be retrieved.
+
+    Response:
+    - On success, returns a JSON object containing:
+      - "question": A dictionary with the details of the selected question,
+        including "id", "questions", "answer", "difficulty", and "category".
+    - If no available questions are found, returns a JSON object with:
+      - "success": True
+      - "message": A message indicating that no more questions are available 
+        in the specified category.
+    
+    Raises:
+    - 422: If there is an error processing the request.
+
+    Example Request:
+    {
+      "previous_questions": [1,2,3],
+      "quiz_category": {"id",1}
+    }
+    """
     try:
       body=request.get_json() 
       print("######################################")
