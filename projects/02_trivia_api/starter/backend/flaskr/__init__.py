@@ -9,6 +9,31 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 def paginate_questions(request,selection):
+  """
+  Paginate a list of questions based on the requested page number.
+
+  This function takes a request object and a selection of questions
+  and returns a subset of questions for the specified page. It 
+  calculates the start and end of the page number and the predefined
+  number of questions per page.
+
+  Parameter:
+  - request: The request object containing query parameters,
+    including the page number
+  - selection: A list of questions to be paginated.  Each 
+    question should have a 'format()' method that returns a 
+    formatted representation of the question.
+
+  Returns:
+  - A list of questions for the specified page.
+
+  Example:
+  - If QUESTIONS_PER_PAGE is set to 10 and the page number is 2,
+    this function will return questions 11 to 20 from the selection
+
+  Raises:
+  - IndexError: If the page number is out of range for the selection.  
+  """
   page = request.args.get("page", 1, type=int)
   start = (page - 1) * QUESTIONS_PER_PAGE
   end = start + QUESTIONS_PER_PAGE
@@ -56,6 +81,36 @@ def create_app(test_config=None):
   '''
   @app.route("/questions")
   def retrieve_questions():
+    """
+    Retrieve a list of questions and their associated categories.
+
+    This endpoint handels GET requests to the "/questions" route.
+    It retrieves all questions from the database, 
+    paginates them based on the request parameters,
+    and returns them along with the total number of questions,
+    available categories, and the current category.
+
+    Steps:
+    1. Retrieve all questions from the database and order them by ID.
+    2. Paginate the questions based on the request parameters.
+    3. If no questions are found, return a 404 error.
+    4. Get the current category ID from the request arguments.
+        If the category does not exist, 404 error.
+    5. Retrieve all categories from the database and format them for
+        the response.
+    6. Return a JSON response containing:
+        - 'questions': The list of paginated questions.
+        - 'total_questions': The total number of questions
+            in the database.
+        - 'categories': A dictionary of available categories.
+        - 'current_category': The type of the current category.
+
+    Returns:
+      JSON response containing the questions, total_questions count, categories, and the current category.
+
+    Raises:
+      404: If no questions are found or if the specified category does not exist.
+    """
     print("@app.route(\'/questions\') request:",request)
     selection = Question.query.order_by(Question.id).all()
     current_questions = paginate_questions(request,selection)
@@ -90,6 +145,34 @@ def create_app(test_config=None):
   '''
   @app.route("/categories")
   def retrieve_categories():
+    """
+    Retrieve a list of all categories from the database.
+
+    This endpoint handles GET request to the '/categories' route.
+    It retrieves all categories from the database, orders them
+    by their ID, and returns them in a formatted JSON response.
+
+    Steps:
+    1. Query the database to get all categories, ordered by
+        their ID.
+    2. Format the categories into a dictionary where the keys are
+        category IDs and the values are category types.
+    3. Return a JSON response containing the formatted categories.
+
+    Return:
+      JSON response containing:
+      - 'catagories': A dictionary of category IDs and their 
+          corresponding types.
+
+    Example Response:
+    {
+      "categories":{
+        1: "Science",
+        2: "Math",
+        3: "History"
+      }
+    }
+    """
     categories=Category.query.order_by(Category.id).all()
     formatted_categories = {}
     for category in categories:
@@ -111,6 +194,39 @@ def create_app(test_config=None):
   '''
   @app.route("/categories/<int:category_id>/questions")
   def question_by_category(category_id):
+    """
+    Retrieve questions for a specific category.
+
+    This endpoint handles GET requests to the 
+    "/categories/<int:category_id>/questions" route. It retrieves
+    all questions associated with the specified category ID
+    from the database and returns them in a JSON response. If the
+    category does not exist, it returns a 404 error with an 
+    appropriate message.
+
+    Parameters:
+    - category_id (int): The ID of the category for which to 
+                          retrieve the questions.
+
+    Steps:
+    1. Query the database for questions that match the given category ID.
+    2. Format the questions into a list.
+    3. Check if the category exists in the database.
+    4. If the catagory does not exist, return a 404 error with a message.
+    5. If the category exists, return a JSON response containing:
+        - "questions": A list of formatted questions.
+        - "total_questions": The total number of questions retrieved.
+        - "current_category": The type of the current category.
+
+    Returns:
+      JSON response containing:
+      - "questions": List of questions for the specified category.
+      - "total_questions": Total number of questions in the category.
+      - "current_category": The type of current category.
+
+    Raises:
+      404: If the specified category ID does not correspond to an existing category.
+    """
     selection =Question.query.filter_by(category=str(category_id)).all()
     print("Selection:",selection)
     questions = []
@@ -142,6 +258,37 @@ def create_app(test_config=None):
   '''
   @app.route("/questions/<int:question_id>",methods=['DELETE'])
   def delete_question(question_id):
+    """
+    Delete a question from the database by its ID.
+
+    This endpoint handles DELETE requests to the "/questions/<questions_id>" route.
+    It attempts to find the question with the specified ID in the database. If the 
+    question is found, it deletes the question and returns a JSON response 
+    indicating success, along with the updated list of the questions and the 
+    total number of questions remaining. If the question is not found, it returns 
+    a 404 error. If an occurs during the deletion process, it returns a 422 error.
+
+    Parameters:
+    - question_id (int): The ID of the question to be deleted.
+
+    Steps:
+    1. Query the database to find the question by its ID.
+    2. If the question is not found, abort with a 404 status code.
+    3. If the question is found, delete it from the database.
+    4. Retrieve the updated list of questions and paginate them
+    5. Return a JSON response containing:
+        - "success": A boolean indicating the deletion was successful.
+        - "deleted": The ID of the deleted question.
+        - "questions": The updated list of questions.
+        - "total_questions": The total number of questions remaining.
+
+    Returns:
+      JSON response indicating the result of the deletion operation.
+
+    Raises:
+      404: If the question with the specified ID does not exist.
+      422: If an error occurs during the deletion process.
+    """
     try:
       question = Question.query.filter(Question.id==question_id).one_or_none()
       print("Questions Found: ",question)
