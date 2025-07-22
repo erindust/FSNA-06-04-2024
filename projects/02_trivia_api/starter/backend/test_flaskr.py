@@ -37,6 +37,27 @@ class TriviaTestCase(unittest.TestCase):
     Write at least one test for each test for successful operation and for expected errors.
     """
     def test_422_unprocessable_entity(self):
+        """
+        Test the API endpoint for handling unprocessable entity errors (HTTP 422).
+
+        This test simulates a scenario where POST request is made to the 
+        "/questions" endpoint with an empty JSON payload. It verifies that
+        the server responds with a 422 status code & checks that the 
+        response contains the appropriate error message indicating that
+        the request was unprocessable.
+
+        Steps:
+        1. Send a POST request to the "/questions" endpoint with an empty 
+            JSON object.
+        2. Assert that the response status code is 422.
+        3. Assert that the response contains an "error" key with the
+            message "Unprocessable Entity".
+
+        Expected Outcome:
+        The test should pass if the API correctly identifies the empty
+        request as unprocessable and returns the expected status code
+        and error message.
+        """
         #Simulate a 422 error
         response = self.client.post('/questions',json={}) #sending an empty json
         data = response.get_json()
@@ -47,6 +68,28 @@ class TriviaTestCase(unittest.TestCase):
     # Test Successful Retrieval of Questions  
     # to ensure that when the endpoint is hit successfully, it returns a 200 status code and the expected structure of the response  
     def test_retrieve_questions_success(self):
+        """
+        Test the API endpoint for successfully retrieving all questions.
+
+        This test sends a GET request to the "/questions" endpoint &
+        verifies that the response is successful (HTTP 200). It checks
+        that the response contains the expected keys: "questions",
+        "total questions", "categories", & "current_category".
+
+        Steps:
+        1. Send a GET request to the "/questions" endpoint.
+        2. Assert that the response status code is 200.
+        3. Parse the response data from JSON.
+        4. Assert that the response data contains following keys: 
+            - "questions"
+            - "total_questions" 
+            - "categories"
+            - "current_category"
+
+        Expected Outcome:
+        The test should pass if the API correctly returns a successful
+        response with the expected structure and data.
+        """
         res = self.client.get('/questions')
         print("res:",res)
         print("Response Status Code:", res.status_code)
@@ -58,18 +101,77 @@ class TriviaTestCase(unittest.TestCase):
         self.assertIn('categories', data)
         self.assertIn('current_category', data)
 
+    
     def test_404_error_handler(self):
+        """
+        Test the API endpoint for handling 404 errors (Not found).
+
+        This test simulates a scenario where a GET request is made to a
+        non-existent endpoint. It verifies that the server responds with 
+        a 404 status code and checks that the response contains the
+        appropriate error message indicating that the requestion resouce
+        was not found.
+
+        Steps:
+        1. Send a GET request to a non-existent endpoint ("/non-existent-endpoint").
+        2. Assert that the response status code is 404.
+        3. Assert that the response JSON contains an "error" key with the 
+            message "Resource not found".
+
+        Expected Outcome:
+        The test should pass of the API correctly identifies the non-existent
+        endpoint and returns the expected status code and error message.
+        """
         response = self.client.get('/non-existent-endpoint')
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json, {"error": "Resource not found"})
 
     def test_404_no_questions(self):
+        """
+        Test the API endpoint for retrieving questions when no questions exist.
+
+        This test simulates a scenario where a GET request is made to the
+        "/questions" endpoint, but the questions table in the database
+        is empty. It verifies that the server responds with a 404 status
+        code, indicating that no questions were found.
+
+        Steps:
+        1. Ensure that the questions table in the database is empty
+            before running this test.
+        2. Send a GET request to the "/questions" endpoint.
+        3. Assert that the response status code is 404.
+
+        Expected Outcomes:
+        The test should pass if the API correctly identifies that there
+        are no questions available and returns the expected status code.
+        """
         # Simulate a request to /questions when there are no questions
         # for this test to pass the database questions table needs to be empty
         response = self.client.get('/questions')
         self.assertEqual(response.status_code, 404)
 
     def test_add_question_success(self):
+        """
+        Test the API endpoint for successfully adding a new question.
+
+        This test simulates a scenario where a POST request is made to 
+        the "/questions" endpoint with a valid question payload. It
+        verifies that the server responds with a 201 status code,
+        indicating that the question was created successfully. The test 
+        also prints the response JSON for verification.
+
+        Steps:
+        1. Define a new question with the required fields: question,
+            answer, category, and difficulty.
+        2. Send a POST request to the "/questions" endpoint with the 
+            new question as JSON.
+        3. Assert that the response status code is 201 (Created).
+        4. Print the response JSON for verification.
+
+        Expected Outcome:
+        The test should pass if the API correctly adds the new question
+        and returns the expected status code and response data.
+        """
         new_question = {
             "question":"What is the capitol of France?",
             "answer":"Paris",
@@ -84,6 +186,33 @@ class TriviaTestCase(unittest.TestCase):
 
 
     def test_delete_question_success(self):
+        """
+        Test the API endpoint for successfully deleting a question.
+
+        This test simulates a scenario where a new question is first
+        added to the database, and then a DELETE request is made to 
+        remove that question. It verifies that the question is created 
+        successfully and that the DELETE request returns a 200 status
+        code, indicating that the deletion was successful.
+
+        Steps:
+        1. Define a new question with the required fields: question, 
+            answer, category, and difficulty.
+        2. Send a POST request to the "/questions" endpoint to and
+            the new question.
+        3. Assert that the response status code is 201 (Created).
+        4. Retrieve the ID of the newly created question from the 
+            response data.
+        5. Send a DELETE request to the "/questions/<question_id>"
+            endpoint to delete the question.
+        6. Assert that the response status code is 200 (OK).
+        7. Assert that the response indicates success.
+
+        Expected Outcome:
+        The test should pass if the API correctly adds the new question
+        and successfully deletes it, returning the expected status code
+        and response data.
+        """
         # question_id = self.add_sample_question()
         new_question = {
             "question":"What is the capital of Italy?",
@@ -109,6 +238,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(response.json['success'], True)
 
     def test_delete_question_failure(self):
+        """
+        Test the API endpoint for handling deletion of a non-existent question.
+
+        This test simulates a scenario where a DELETE request is made to
+        the "/questions/<question_id>" endpoint with an invalid question ID
+        (1000 in this case), assuming it does not exist). It verifies that
+        the server responds with a 422 status code, indicating that the 
+        request to delete the question was unprocessable.
+
+        Steps:
+        1. Send a DELETE request to the "/questions/1000" endpoint.
+        2. Assert that the response status code is 422.
+        3. Print the response JSON for verification.
+
+        Expected Outcome:
+        The test should pass if the API correctly identifies that the
+        specified question does not exist and returns the expected status
+        code and error message.
+        """
         # question_id = self.add_sample_question()
         
         response = self.client.delete(f"/questions/1000")
@@ -117,6 +265,25 @@ class TriviaTestCase(unittest.TestCase):
         print(response.json)
 
     def test_get_questions_by_category_success(self):
+        """
+        Test the API endpoint for retrieving questions by category.
+
+        This test sends a GET request to the "/categories/<category_id>/questions"
+        endpoint and verifies that the response is successful (HTTP 200). It checks
+        that the response contains the expected structure, including the total number
+        of questions and that the questions are returned as a list.
+
+        Steps:
+        1. Send a GET request to the "/categories/1/questions" endpoint.
+        2. Assert that the response status code is 200.
+        3. Assert that the "total_questions" in the response data is greater than or
+            equal to 0.
+        4. Assert that the "questions" in the response data is a list.
+
+        Expected Outcome:
+        The test should pass if the API correctly returns a successful response with
+        the expected structure and data for the specified category.
+        """
         res = self.client.get('/categories/1/questions')
         data = res.get_json()
         self.assertEqual(res.status_code,200)
@@ -124,6 +291,24 @@ class TriviaTestCase(unittest.TestCase):
         self.assertIsInstance(data["questions"],list)
 
     def test_get_questions_by_category_failure(self):
+        """
+        Test the API endpoint for retrieving questions by a non-existent category.
+
+        This test simulates a scenario where a GET request is made to the 
+        "/categories/<category_id>/questions" endpoint with an invalid
+        category ID (999 in this case). It verifies that the server responds 
+        with a 404 status code, indicating that the requested category was
+        not found.
+
+        Steps:
+        1. Send a GET request to the "/catagories/999/questions" endpoint.
+        2. Assert that the response status code is 404.
+        3. Optionally, assert that the response contains an appropriate error message.
+
+        Expected Outcome:
+        The test should pass if the API correctly identifies that the requested
+        category does not exist and returns the expected status code.
+        """
         res = self.client.get('/categories/999/questions')
         data = res.get_json()
         self.assertEqual(res.status_code,404)
