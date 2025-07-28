@@ -320,6 +320,33 @@ def create_app(test_config=None):
   '''
   @app.route('/questions',methods=['POST'])
   def create_question():
+    """
+    Create a new trivia question.
+    
+    This endpoint allows user to add a question to the trivia database.
+    The request must contain the question text, answer, difficulty level,
+    and category. If any of these fields are missing or invalid, a 422
+    Unprocessable Entity error will be returned.  On successful creation,
+    a 201 Created response will be returned along with the ID of the created
+    question and the total number of questions in the database.
+
+    Requestion Body:
+      - question (str): The text of the question to be added.
+      - answer (str): The answer to the question.
+      - difficulty (int): The difficulty level of the question (e.g. 1-5)
+      - category (str): The category to which the question belongs
+    
+    Returns:
+      - JSON response containing:
+        - success (bool): Indicates if the operation was successful.
+        - created (int): The ID of the newly created question.
+        - total_questions (int): The total number of questions in the database
+
+    Raises:
+      - 422 Unprocessable Entity: If the question, answer, difficulty, or category 
+        is missing or invalid.
+      - 500 Internal Server Error: If there is an error during database operation.
+    """
     body = request.get_json()
     print("New Question:",body)
     new_question = body.get("question",None)

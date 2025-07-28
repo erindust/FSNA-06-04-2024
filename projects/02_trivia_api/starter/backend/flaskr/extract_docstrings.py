@@ -38,8 +38,8 @@ def extract_docstrings(file_path,output_file):
 
 
 if __name__ == "__main__":
-    input_file_path = "test_flaskr.py"
-    output_file_path = "test_flaskr_docstrings.txt"
+    input_file_path = "__init__.py"
+    output_file_path = "__init__docstrings.txt"
     extract_docstrings(input_file_path,output_file_path)
     print(f"Docstrings have been written to {output_file_path}")
 

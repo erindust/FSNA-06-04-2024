@@ -312,6 +312,8 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client.get('/categories/999/questions')
         data = res.get_json()
         self.assertEqual(res.status_code,404)
+
+    
         
     
 
