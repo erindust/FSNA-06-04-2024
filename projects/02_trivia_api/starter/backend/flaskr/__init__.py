@@ -84,7 +84,7 @@ def create_app(test_config=None):
     """
     Retrieve a list of questions and their associated categories.
 
-    This endpoint handels GET requests to the "/questions" route.
+    This endpoint handles GET requests to the "/questions" route.
     It retrieves all questions from the database, 
     paginates them based on the request parameters,
     and returns them along with the total number of questions,
@@ -180,7 +180,8 @@ def create_app(test_config=None):
 
     return jsonify(
       {
-        "categories":formatted_categories
+        "categories":formatted_categories,
+        "success":True
       }
     )
 
@@ -487,26 +488,28 @@ def create_app(test_config=None):
     }
     """
     try:
+      
       body=request.get_json() 
       print("######################################")
       print(body)
       previous_questions = body.get('previous_questions',[])
       print("PREVIOUS QUESTIONS:",previous_questions)
-      quiz_category = body.get('quiz_category',None)
+      quiz_category = body.get('quiz_category',None)  # if there isn't any quiz category selected then None
       print("QUIZ_CATEGORY",quiz_category)
+      print(type(quiz_category))
 
-      if quiz_category['id']!=0:
-        selection = Question.query.filter(Question.category==quiz_category["id"]).all()
+      if quiz_category['id']!=0:  # if there is a specific quiz category then pick from the quiz category
+        selection = Question.query.filter(Question.category==quiz_category['id']).all()
       else:
         selection = Question.query.all()
       
-      print("SELECTION",selection)
+      print("\nSELECTION",selection)
 
       questions = [question.format() for question in selection]
-      print("QUESTIONS",questions)
+      print("\nQUESTIONS",questions)
 
       available_questions = [q for q in questions if q['id'] not in previous_questions]
-      print("AVAILABLE QUESTIONS:",available_questions)
+      print("\nAVAILABLE QUESTIONS:",available_questions)
       if not available_questions:
         return jsonify({
           'success':True,
@@ -514,6 +517,7 @@ def create_app(test_config=None):
         })
           
       question = random.choice(available_questions)
+      print("\nRANDOM QUESTION ID: " + str(question['id']))
 
       return jsonify({
         'question': {
