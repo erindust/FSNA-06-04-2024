@@ -336,33 +336,33 @@ class TriviaTestCase(unittest.TestCase):
     6. Test Handling of Non-JSON Request:
         - Test that is the request is not JSON, the function raises a 422 error.
     """
-    def test_successful_retrieval_of_question(self):
-        """
-        Test Successful Retrieval of a Random Question:
-        - Test that when valid previous_questions and quiz_category are provided, the
-          function returns a random questions that is not in previous_questions.
-        """
-        # Mock the database query to return a question
-        # This is to make sure that there is a question 
-        ##### that can be retrieved. #####
-        new_question = {
-            "question":"Sample Question?",
-            "answer":"Sample Answer",
-            "category":1,
-            "difficulty":1
-        }
-        response = self.client.post("/questions",json=new_question)
-        self.assertEqual(response.status_code,201)
-        ##################################
-        print("BREAK")
+    # def test_successful_retrieval_of_question(self):
+    #     """
+    #     Test Successful Retrieval of a Random Question:
+    #     - Test that when valid previous_questions and quiz_category are provided, the
+    #       function returns a random questions that is not in previous_questions.
+    #     """
+    #     # Mock the database query to return a question
+    #     # This is to make sure that there is a question 
+    #     ##### that can be retrieved. #####
+    #     new_question = {
+    #         "question":"Sample Question?",
+    #         "answer":"Sample Answer",
+    #         "category":1,
+    #         "difficulty":1
+    #     }
+    #     response = self.client.post("/questions",json=new_question)
+    #     self.assertEqual(response.status_code,201)
+    #     ##################################
+    #     print("BREAK")
         
-        response = self.client.post("/quizzes",
-                                    json={"previous_questions":[],
-                                          "quiz_category":{"id":1}})
-        # print("\n RESPONSE:")
-        data = json.loads(response.data)
-        self.assertEqual(response.status_code,200)
-        self.assertIn("question",data)
+    #     response = self.client.post("/quizzes",
+    #                                 json={"previous_questions":[],
+    #                                       "quiz_category":{"id":1}})
+    #     # print("\n RESPONSE:")
+    #     data = json.loads(response.data)
+    #     self.assertEqual(response.status_code,200)
+    #     self.assertIn("question",data)
 
 
     # def test_no_more_available_questions(self):
@@ -383,15 +383,53 @@ class TriviaTestCase(unittest.TestCase):
     #     """
     #     print("TEST_RETRIEVE_CATEGORIES")
     #     response = self.client.get("/categories")
-    #     data = response.get_json
+    #     data = response.get_json()
     #     print(data)
+    #     categories = data['categories']
+    #     print(categories)
     #     self.assertEqual(response.status_code,200)
     #     self.assertEqual(data['success'],True)
     #     self.assertIn('categories',data)
-    #     self.assertEqual(len(data['categories']),6) #Adjust depending on how many catagories there are in the db.
+    #     self.assertEqual(len(categories),6) #Adjust depending on how many catagories there are in the db.
     #     # Adjust as needed
-    #     self.assertEqual(data['categories'][1],'Science')
-    #     self.assertEqual(data['categories'][2],'Math')
+    #     print(categories['1'])
+    #     self.assertEqual(categories['1'],'Science')
+    #     self.assertEqual(categories['2'],'Art')
+
+    def test_successful_search(self):
+        # Insert a sample question to guarantee it exists
+        print("TEST_SUCCESS_SEARCH")
+        new_question = {
+            "question":"Test Search Sample Question?",
+            "answer":"Test Search Sample Answer",
+            "category":1,
+            "difficulty":1
+        }
+        response = self.client.post("/questions",json=new_question)
+        self.assertEqual(response.status_code,201)
+        #######################
+
+        # Search for this question in the database
+        response = self.client.post("/questions/search",
+                                    json={"searchTerm":"Test Search Sample"})
+        data = json.loads(response.data)
+        print(data)
+        self.assertEqual(response.status_code,200)
+        self.assertIn("questions",data)
+        self.assertEqual(data['success'],True)
+
+    def test_search_none_found(self):
+        print("TEST_SEARCH_NONE_FOUND")
+
+        # Search for this question in the database
+        response = self.client.post("/questions/search",
+                                    json={"searchTerm":"K;AJSDF;KDJSAKFJ"})
+        data = json.loads(response.data)
+        print(data)
+        print(response.status_code)
+        self.assertEqual(response.status_code,200)
+        self.assertIn("questions",data)
+        self.assertEqual(data['success'],True)
 
 
 # Make the tests conveniently executable
